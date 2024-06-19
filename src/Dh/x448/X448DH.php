@@ -1,16 +1,16 @@
 <?php
 
-namespace Lambq\Dissononce\Dh\x25519;
+namespace Lambq\Dissononce\Dh\x448;
 
 use Lambq\Dissononce\Exception\NoiseProtocolException;
 use Lambq\Dissononce\Dh\KeyPair;
 use Lambq\Dissononce\Dh\Dh;
 
-class X25519DH extends Dh
+class X448DH extends Dh
 {
     public function __construct()
     {
-        parent::__construct('25519', 32);
+        parent::__construct('448', 56);
     }
 
     public function dh(KeyPair $keypair, $publickey)
@@ -23,10 +23,10 @@ class X25519DH extends Dh
         return new PublicKey($data);
     }
 
-    public function generate_keypair($privatekey = null)
+    public function generate_keypair($privatekey = null): KeyPair
     {
         if ($privatekey == '' || $privatekey == null) {
-            $private = random_bytes(32);
+            $private = random_bytes(56);
         } else {
             // 将字节串转换为PHP可以处理的格式
             $private = sodium_base642bin($privatekey);

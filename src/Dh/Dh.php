@@ -11,8 +11,8 @@ class Dh
 
     public function __construct(string $name, string $dhlen)
     {
-        $this->name = $name;
-        $this->dhlen = $dhlen;
+        $this->name     = $name;
+        $this->dhlen    = $dhlen;
     }
 
     public function name()
@@ -25,26 +25,9 @@ class Dh
         return $this->dhlen;
     }
 
-    public function getLen(): int
+    public function generate_keypair($privatekey)
     {
-        return SODIUM_CRYPTO_SCALARMULT_SCALARBYTES;
-    }
 
-    public function generateKeyPair($privatekey)
-    {
-        if ($privatekey == '') {
-            $private = random_bytes($this->getLen());
-        } else {
-            // 将字节串转换为PHP可以处理的格式
-            $private = sodium_base642bin($privatekey);
-        }
-
-        $publicKey = sodium_crypto_scalarmult_base($private);
-
-        return new KeyPair(
-            $publicKey,
-            $private
-        );
     }
 
     public function create_public($data)
@@ -54,6 +37,6 @@ class Dh
 
     public  function dh(KeyPair $keypair, PublicKey $publickey)
     {
-        return sodium_crypto_scalarmult($keypair->private(), $publickey->data());
+
     }
 }
