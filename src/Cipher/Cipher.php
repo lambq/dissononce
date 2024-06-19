@@ -25,30 +25,14 @@ class Cipher
      */
     public function encrypt($key, $nonce,  $ad = null, $message)
     {
-        $keyLength = strlen($key);
-        if ($keyLength !== SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES) {
-            throw new NoiseProtocolException('Key length must be %s bytes, %s bytes provided.', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES, $keyLength);
-        }
 
-        return sodium_crypto_aead_aes256gcm_encrypt($message, $ad, $nonce, $key);
     }
     /**
      * 解密
      */
     public function decrypt($key, $nonce, $ad = null, $message)
     {
-        $keyLength = strlen($key);
-        if ($keyLength !== SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES) {
-            throw new NoiseProtocolException('Key length must be %s bytes, %s bytes provided.', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES, $keyLength);
-        }
 
-        $res = sodium_crypto_aead_aes256gcm_decrypt($message, $ad, $nonce, $key);
-
-        if ($res === false) {
-            throw new DecryptFailureException();
-        }
-
-        return $res;
     }
 
     public function rekey($key)

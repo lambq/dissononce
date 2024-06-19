@@ -2,8 +2,12 @@
 
 namespace Lambq\Dissononce\Cipher;
 
+use Lambq\Dissononce\Exception\DecryptFailureException;
+use Lambq\Dissononce\Exception\NoiseProtocolException;
+
 class AESGCMCipher extends Cipher
 {
+    protected $byte = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     protected $nonce;
     public function __construct()
     {
@@ -15,7 +19,12 @@ class AESGCMCipher extends Cipher
      */
     public function encrypt($key, $nonce,  $ad = null, $message)
     {
-        return parent::encrypt($key, $this->format_nonce($nonce),  $ad, $message);
+        $keyLength = strlen($key);
+        if ($keyLength !== SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES) {
+            throw new NoiseProtocolException('Key length must be %s bytes, %s bytes provided.', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES, $keyLength);
+        }
+
+        return sodium_crypto_aead_aes256gcm_encrypt($message, $ad, $this->format_nonce($nonce), $key);
     }
 
     /**
@@ -23,7 +32,18 @@ class AESGCMCipher extends Cipher
      */
     public function decrypt($key, $nonce, $ad = null, $message)
     {
-        return parent::decrypt($key, $this->format_nonce($nonce),  $ad, $message);
+        $keyLength = strlen($key);
+        if ($keyLength !== SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES) {
+            throw new NoiseProtocolException('Key length must be %s bytes, %s bytes provided.', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES, $keyLength);
+        }
+
+        $res = sodium_crypto_aead_aes256gcm_decrypt($message, $ad, $this->format_nonce($nonce), $key);
+
+        if ($res === false) {
+            throw new DecryptFailureException();
+        }
+
+        return $res;
     }
 
     /**
